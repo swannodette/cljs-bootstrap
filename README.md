@@ -5,9 +5,10 @@ Use ClojureScript to compile itself.
 ## Usage
 
 Install [ClojureScript](http://github.com/clojure/clojurescript) from master. 
-Checkout the repo and and build it and install into your local Maven:
+Checkout the ClojureScript repo and build and install into your local Maven:
 
 ```
+cd clojurescript
 ./script/build
 ```
 
@@ -18,12 +19,14 @@ Checkout [tools.reader](https://github.com/clojure/tools.reader) from master.
 Install it into your local Maven:
 
 ```
+cd tools.reader
 lein install
 ```
 
 Install the NPM dependencies to get reasonable stack traces:
 
 ```
+cd cljs-bootstrap
 lein npm install
 ```
 
