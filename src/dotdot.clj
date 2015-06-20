@@ -16,7 +16,7 @@
          :mode        :interactive})))
 
   (env/with-compiler-env cenv
-    (-> (ana/analyze {:ns {:name 'cljs.core$macros}}
-          'cljs.core$macros/..)
-      :info comp/munge))
+    (comp/munge
+      (ana/resolve-var {:ns {:name 'cljs.core$macros}}
+        'cljs.core$macros/..)))
   )
