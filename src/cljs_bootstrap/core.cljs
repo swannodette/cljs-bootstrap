@@ -10,6 +10,8 @@
 (apply load-file ["./.cljs_node_repl/cljs/core$macros.js"])
 
 (comment
+  ;; NOTE: pprint'ing the AST seems to fail
+
   ;; works
   (js/eval
     (with-out-str
@@ -47,9 +49,15 @@
     (ana/parse-invoke
       (assoc (ana/empty-env) :context :expr) `(second [1 2 3])))
 
-  ;; fails
-  (pprint
-    (ensure
+  ;; works
+  (ensure
+    (ana/analyze-seq
+      (assoc (ana/empty-env) :context :expr)
+      '(first [1 2 3]) nil nil))
+
+  ;; fails, due to regular expression
+  (ensure
+    (c/emit
       (ana/analyze-seq
         (assoc (ana/empty-env) :context :expr)
         '(first [1 2 3]) nil nil)))
