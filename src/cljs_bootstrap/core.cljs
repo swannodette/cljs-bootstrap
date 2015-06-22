@@ -1,5 +1,6 @@
 (ns cljs-bootstrap.core
-  (:require-macros [cljs.env.macros :refer [ensure]])
+  (:require-macros [cljs.env.macros :refer [ensure]]
+                   [cljs.analyzer.macros :refer [no-warn]])
   (:require [cljs.pprint :refer [pprint]]
             [cljs.tools.reader :as r]
             [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
@@ -55,12 +56,16 @@
       (assoc (ana/empty-env) :context :expr)
       '(first [1 2 3]) nil nil))
 
-  ;; fails, due to regular expression
-  (ensure
-    (c/emit
-      (ana/analyze-seq
-        (assoc (ana/empty-env) :context :expr)
-        '(first [1 2 3]) nil nil)))
+  ;; works
+  ;; includes warning if not suppressed via no-warn
+  (js/eval
+    (with-out-str
+      (ensure
+        (c/emit
+          (no-warn
+            (ana/analyze-seq
+              (assoc (ana/empty-env) :context :expr)
+              `(first [1 2 3]) nil nil))))))
 
   (js/eval
     (with-out-str
