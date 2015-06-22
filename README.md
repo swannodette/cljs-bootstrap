@@ -15,8 +15,9 @@ cd clojurescript
 Note the ClojureScript version number. Modify this repo's `project.clj` file to
 reflect the version number. 
 
-Checkout [tools.reader](https://github.com/clojure/tools.reader) from master.
-Install it into your local Maven:
+Checkout my fork of [tools.reader](https://github.com/swannodette/tools.reader) 
+from master and switch to the `cljs-bootstrap` branch. Install it into your 
+local Maven:
 
 ```
 cd tools.reader
@@ -56,6 +57,35 @@ master:
           (assoc (ana/empty-env) :context :expr)
           :foo)))))
 ```
+
+## Hacking
+
+Progress is constantly being made against master. If you are feeling
+adventurous the following will let you see the current state of things. In
+a *Clojure* REPL copy the `cljs/core.cljc` macros file and the `cljs/core.cljs` 
+standard library file into `resources` (make sure you've created the 
+`resources/cljs` parent directory).
+
+```clj
+(require '[clojure.java.io :as io])
+(spit "resources/cljs/core.cljc" (slurp (io/resource "cljs/core.cljc")))
+(spit "resources/cljs/core.cljs" (slurp (io/resource "cljs/core.cljs")))
+```
+
+Start a *ClojureScript* REPL. First you must load the macros file at the REPL:
+
+```clj
+(load-file "/full/path/to/resources/cljs/core.cljc")
+```
+
+Then load this project's namespace:
+
+```clj
+(require 'cljs-bootstrap.core)
+```
+
+Switch into this namespace and you should be able to eval the comment snippets
+in the `src/cljs_bootstrap/core.cljs` source file.
 
 ## License
 
