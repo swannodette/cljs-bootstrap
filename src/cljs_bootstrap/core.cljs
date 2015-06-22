@@ -7,10 +7,10 @@
             [cljs.compiler :as c]))
 
 (set! *target* "nodejs")
+(apply load-file ["./.cljs_node_repl/cljs/core$macros.js"])
 
 (comment
-  (apply load-file ["./.cljs_node_repl/cljs/core$macros.js"])
-
+  ;; works
   (js/eval
     (with-out-str
       (c/emit
@@ -19,6 +19,7 @@
             (assoc (ana/empty-env) :context :expr)
             :foo)))))
 
+  ;; works
   (js/eval
     (with-out-str
       (c/emit
@@ -27,18 +28,24 @@
             (assoc (ana/empty-env) :context :expr)
             '(+ 1 2))))))
 
-  ;; fails
+  ;; works
   (ensure
     (ana/get-expander
       (first '(first [1 2 3]))
       (assoc (ana/empty-env) :context :expr)))
 
-  ;; fails
-  (pprint
-    (ensure
-      (ana/macroexpand-1
-        (assoc (ana/empty-env) :context :expr)
-        '(first [1 2 3]))))
+  ;; works
+  (let [form  '(second [1 2 3])
+        mform (ensure
+                (ana/macroexpand-1
+                  (assoc (ana/empty-env) :context :expr) form))]
+    (identical? form mform))
+
+  ;; get the expected error if we use quote instead of syntax
+  ;; quote since cljs.core not yet analyzed
+  (ensure
+    (ana/parse-invoke
+      (assoc (ana/empty-env) :context :expr) `(second [1 2 3])))
 
   ;; fails
   (pprint
