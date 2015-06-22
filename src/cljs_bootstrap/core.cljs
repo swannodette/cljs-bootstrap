@@ -67,19 +67,25 @@
               (assoc (ana/empty-env) :context :expr)
               `(first [1 2 3]) nil nil))))))
 
+  ;; works, same as above
   (js/eval
     (with-out-str
-      (c/emit
-        (ensure
-          (ana/analyze
-            (assoc (ana/empty-env) :context :expr)
-            '(first [1 2 3]))))))
+      (ensure
+        (c/emit
+          (no-warn
+            (ana/analyze
+              (assoc (ana/empty-env) :context :expr)
+              `(first [1 2 3])))))))
 
-  (pprint
-    (ensure
-      (ana/analyze
-        (assoc (ana/empty-env) :context :expr)
-        '(fn [a b] (+ a b)))))
+  ;; works
+  (js/eval
+    (with-out-str
+      (ensure
+        (c/emit
+          (no-warn
+            (ana/analyze
+              (assoc (ana/empty-env) :context :expr)
+              `((fn [a# b#] (+ a# b#)) 1 2)))))))
 
   ;; ignore for now
 
