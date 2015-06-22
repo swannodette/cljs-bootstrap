@@ -1,5 +1,5 @@
 (ns cljs-bootstrap.core
-  (:require-macros [cljs.env.macros :refer [ensure]]
+  (:require-macros [cljs.env.macros :refer [ensure with-compiler-env]]
                    [cljs.analyzer.macros :refer [no-warn]])
   (:require [cljs.pprint :refer [pprint]]
             [cljs.tagged-literals :as tags]
@@ -93,13 +93,13 @@
 
   (def fs (js/require "fs"))
 
-  (def ana (.readFileSync fs "resources/cljs/core.cljs" "utf8"))
+  (def f (.readFileSync fs "resources/cljs/core.cljs" "utf8"))
 
-  (goog/isString ana)
+  (goog/isString f)
 
   ;; 2.5second on work machine
   (time
-    (let [rdr (string-push-back-reader ana)
+    (let [rdr (string-push-back-reader f)
           eof (js-obj)]
      (binding [*ns* (create-ns 'cljs.analyzer)
                r/*data-readers* tags/*cljs-data-readers*]
@@ -110,14 +110,17 @@
 
   ;; doesn't work yet
   (time
-    (let [rdr (string-push-back-reader ana)
+    (let [rdr (string-push-back-reader f)
           eof (js-obj)
           env (ana/empty-env)]
-      (binding [*ns* (create-ns 'cljs.analyzer)
+      (binding [ana/*cljs-ns* 'cljs.user
+                *ns* (create-ns 'cljs.analyzer)
                 r/*data-readers* tags/*cljs-data-readers*]
-        (loop []
-          (let [form (r/read {:eof eof} rdr)]
-            (when-not (identical? eof form)
-              (ana/analyze env form)
-              (recur)))))))
+        (with-compiler-env cenv
+          (loop []
+            (let [form (r/read {:eof eof} rdr)]
+              (when-not (identical? eof form)
+                (prn form)
+                (ana/analyze env form)
+                (recur))))))))
   )
