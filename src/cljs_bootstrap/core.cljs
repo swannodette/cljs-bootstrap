@@ -7,7 +7,8 @@
             [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.analyzer :as ana]
             [cljs.compiler :as c]
-            [cljs.env :as env]))
+            [cljs.env :as env]
+            [cljs.reader :as edn]))
 
 (set! *target* "nodejs")
 (apply load-file ["./.cljs_node_repl/cljs/core$macros.js"])
@@ -93,6 +94,24 @@
 
   (def fs (js/require "fs"))
 
+  ;; load cache files
+
+  (def core-edn (.readFileSync fs "resources/cljs/core.cljs.cache.aot.edn" "utf8"))
+
+  (goog/isString core-edn)
+
+  (swap! cenv assoc-in [::ana/namespaces 'cljs.core]
+    (edn/read-string core-edn))
+
+  (def macros-edn (.readFileSync fs ".cljs_node_repl/cljs/core$macros.cljc.cache.edn" "utf8"))
+
+  (goog/isString macros-edn)
+
+  (swap! cenv assoc-in [::ana/namespaces 'cljs.core$macros]
+    (edn/read-string macros-edn))
+
+  ;; load standard lib
+
   (def f (.readFileSync fs "resources/cljs/core.cljs" "utf8"))
 
   (goog/isString f)
@@ -108,6 +127,16 @@
            (when-not (identical? eof x)
              (recur)))))))
 
+  (ensure
+    (ana/get-expander 'defn (ana/empty-env)))
+
+  ;; doesn't work because let is a keyword
+  (ensure
+    (ana/get-expander 'let (ana/empty-env)))
+
+  (ensure
+    (ana/core-name? (ana/empty-env) 'defn))
+
   ;; doesn't work yet
   (time
     (let [rdr (string-push-back-reader f)
@@ -120,7 +149,7 @@
           (loop []
             (let [form (r/read {:eof eof} rdr)]
               (when-not (identical? eof form)
-                (prn form)
-                (ana/analyze env form)
+                ;;(prn form)
+                (ana/analyze (assoc env :ns *cljs-ns*) form)
                 (recur))))))))
   )
