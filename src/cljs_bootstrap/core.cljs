@@ -130,7 +130,8 @@
   (ensure
     (ana/get-expander 'defn (ana/empty-env)))
 
-  ;; doesn't work because let is a keyword
+  ;; doesn't work because let is a JavaScript keyword
+  ;; munged to let$
   (ensure
     (ana/get-expander 'let (ana/empty-env)))
 
@@ -138,6 +139,9 @@
     (ana/core-name? (ana/empty-env) 'defn))
 
   ;; doesn't work yet
+  ;; slow, probably because of naive ns code building mappings
+  ;; every time
+  ;; for some reason js ns not handled correctly
   (time
     (let [rdr (string-push-back-reader f)
           eof (js-obj)
