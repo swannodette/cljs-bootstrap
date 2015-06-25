@@ -70,6 +70,8 @@ standard library file into `resources` (make sure you've created the
 (require '[clojure.java.io :as io])
 (spit "resources/cljs/core.cljc" (slurp (io/resource "cljs/core.cljc")))
 (spit "resources/cljs/core.cljs" (slurp (io/resource "cljs/core.cljs")))
+(spit "resources/cljs/core.cljs.cache.aot.edn" 
+  (slurp (io/resource "cljs/core.cljs.cache.aot.edn")))
 ```
 
 Start a *ClojureScript* REPL. First you must load the macros file at the REPL:
