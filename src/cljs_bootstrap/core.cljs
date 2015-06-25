@@ -139,8 +139,6 @@
     (ana/core-name? (ana/empty-env) 'defn))
 
   ;; doesn't work yet
-  ;; slow, probably because of naive ns code building mappings
-  ;; every time
   ;; for some reason js ns not handled correctly
   (time
     (let [rdr (string-push-back-reader f)
