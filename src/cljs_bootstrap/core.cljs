@@ -92,6 +92,15 @@
               (assoc (ana/empty-env) :context :expr)
               `((fn [a# b#] (+ a# b#)) 1 2)))))))
 
+  (println
+    (with-out-str
+      (ensure
+        (c/emit
+          (no-warn
+            (ana/analyze
+              (assoc (ana/empty-env) :context :expr)
+              `((fn [a# b#] (+ a# b#)) 1 2)))))))
+
   (def fs (js/require "fs"))
 
   ;; load cache files
@@ -127,16 +136,12 @@
            (when-not (identical? eof x)
              (recur)))))))
 
+  ;; doesn't work
   (ensure
-    (ana/get-expander 'defn (ana/empty-env)))
-
-  ;; doesn't work because let is a JavaScript keyword
-  ;; munged to let$
-  (ensure
-    (ana/get-expander 'let (ana/empty-env)))
-
-  (ensure
-    (ana/core-name? (ana/empty-env) 'defn))
+    (no-warn
+      (ana/macroexpand-1 (ana/empty-env)
+        '(fn [x & {:keys [meta validator]}]
+           (Atom. x meta validator nil)))))
 
   ;; doesn't work yet
   ;; for some reason js ns not handled correctly
@@ -145,13 +150,15 @@
           eof (js-obj)
           env (ana/empty-env)]
       (binding [ana/*cljs-ns* 'cljs.user
-                *ns* (create-ns 'cljs.analyzer)
+                *ns* (create-ns 'cljs.core)
                 r/*data-readers* tags/*cljs-data-readers*]
         (with-compiler-env cenv
           (loop []
             (let [form (r/read {:eof eof} rdr)]
               (when-not (identical? eof form)
-                ;;(prn form)
-                (ana/analyze (assoc env :ns *cljs-ns*) form)
+                (prn form)
+                (ana/analyze
+                  (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
+                  form)
                 (recur))))))))
   )
