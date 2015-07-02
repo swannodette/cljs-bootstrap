@@ -12,3 +12,5 @@ pom.xml.asc
 node_modules
 .cljs_node_repl
 .idea
+.repl*
+resources/js

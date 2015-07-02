@@ -3,9 +3,9 @@
 (require '[cljs.repl.browser :as browser])
 
 (b/build (b/inputs "src" "dev")
-  {:main 'om.dev
-   :asset-path "js"
-   :output-to "resources/js/app.js"
+  {:main 'cljs-bootstrap.dev
+   :asset-path "/js"
+   :output-to "resources/js/main.js"
    :output-dir "resources/js"
    :verbose true})
 
@@ -13,4 +13,4 @@
   (browser/repl-env
     :static-dir ["resources/html" "resources"])
   :output-dir "resources/js"
-  :asset-path "js"
+  :asset-path "js")
