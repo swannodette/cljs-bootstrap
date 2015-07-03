@@ -140,7 +140,7 @@
 
   (goog/isString f)
 
-  ;; 2.5second on work machine
+  ;; 1.3s on work machine
   (time
     (let [rdr (string-push-back-reader f)
           eof (js-obj)]
@@ -151,15 +151,6 @@
             (when-not (identical? eof x)
               (recur)))))))
 
-  ;; doesn't work
-  (ensure
-    (no-warn
-      (ana/macroexpand-1 (ana/empty-env)
-        '(fn [x & {:keys [meta validator]}]
-           (Atom. x meta validator nil)))))
-
-  ;; doesn't work yet
-  ;; for some reason js ns not handled correctly
   (time
     (let [rdr (string-push-back-reader f)
           eof (js-obj)
