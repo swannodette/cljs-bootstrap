@@ -27,15 +27,14 @@
 
   (string? f)
 
-  ;; 1.3s on work machine
+  ;; ~42ms on work machine
   (time
-    (dotimes [_ 10]
-      (let [rdr (string-push-back-reader f)
-            eof (Object.)]
-        (binding [*ns* (create-ns 'cljs.analyzer)
-                  r/*data-readers* tags/*cljs-data-readers*]
-          (loop []
-            (let [x (r/read {:eof eof} rdr)]
-              (when-not (identical? eof x)
-                (recur))))))))
+    (let [rdr (string-push-back-reader f)
+          eof (Object.)]
+      (binding [*ns* (create-ns 'cljs.analyzer)
+                r/*data-readers* tags/*cljs-data-readers*]
+        (loop []
+          (let [x (r/read {:eof eof} rdr)]
+            (when-not (identical? eof x)
+              (recur)))))))
   )
