@@ -140,16 +140,19 @@
 
   (goog/isString f)
 
-  ;; 1.3s on work machine
-  (time
-    (let [rdr (string-push-back-reader f)
-          eof (js-obj)]
-      (binding [*ns* (create-ns 'cljs.analyzer)
-                r/*data-readers* tags/*cljs-data-readers*]
-        (loop []
-          (let [x (r/read {:eof eof} rdr)]
-            (when-not (identical? eof x)
-              (recur)))))))
+  ;; ~750ms in Chrome Canary
+  ;; ~185ms in WebKit Nightly
+  ;; ~220ms in Firefox Nightly
+  (dotimes [_ 10]
+    (time
+     (let [rdr (string-push-back-reader f)
+           eof (js-obj)]
+       (binding [*ns* (create-ns 'cljs.analyzer)
+                 r/*data-readers* tags/*cljs-data-readers*]
+         (loop []
+           (let [x (r/read {:eof eof} rdr)]
+             (when-not (identical? eof x)
+               (recur))))))))
 
   (time
     (let [rdr (string-push-back-reader f)
