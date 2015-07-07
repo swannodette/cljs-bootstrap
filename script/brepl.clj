@@ -7,10 +7,12 @@
    :asset-path "/js"
    :output-to "resources/js/main.js"
    :output-dir "resources/js"
-   :verbose true})
+   :verbose true
+   :static-fns true})
 
 (cljs.repl/repl
   (browser/repl-env
     :static-dir ["resources/html" "resources"])
   :output-dir "resources/js"
-  :asset-path "js")
+  :asset-path "js"
+  :static-fns true)
