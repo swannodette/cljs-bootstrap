@@ -140,9 +140,9 @@
 
   (goog/isString f)
 
-  ;; ~135ms in WebKit Nightly
-  ;; ~200ms in Firefox Nightly
-  ;; ~270ms in Chrome Canary
+  ;; ~70ms in WebKit Nightly
+  ;; ~80ms in Firefox Nightly
+  ;; ~100ms in Chrome Canary
   (dotimes [_ 10]
     (time
       (let [rdr (string-push-back-reader f)
