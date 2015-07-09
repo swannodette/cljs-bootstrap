@@ -37,4 +37,8 @@
           (let [x (r/read {:eof eof} rdr)]
             (when-not (identical? eof x)
               (recur)))))))
+
+  ;; ~830ms
+  (dotimes [_ 10]
+    (time (ana/analyze-file "cljs/core.cljs")))
   )
