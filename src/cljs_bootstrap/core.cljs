@@ -9,15 +9,15 @@
             [cljs.analyzer :as ana]
             [cljs.compiler :as c]
             [clojure.walk]
-            [clojure.set]
-            [cljs.core$macros]
+            #_[clojure.set]
+            #_[cljs.core$macros]
             [cljs.env :as env]
             [cljs.reader :as edn]
             [cljs.nodejs :as nodejs]))
 
 (enable-console-print!)
 
-#_(set! *target* "nodejs")
+(set! *target* "nodejs")
 (apply load-file ["./.cljs_node_repl/cljs/core$macros.js"])
 
 (def cenv (env/default-compiler-env))
@@ -172,7 +172,7 @@
 
   ;; load cache files
 
-  (def core-edn (.readFileSync fs "resources/cljs/core.cljs.cache.aot.edn" "utf8"))
+  (def core-edn (.readFileSync fs "resources/cache/cljs/core.cljs.cache.aot.edn" "utf8"))
 
   (goog/isString core-edn)
 
@@ -188,7 +188,7 @@
 
   ;; load standard lib
 
-  (def f (.readFileSync fs "resources/cljs/core.cljs" "utf8"))
+  (def f (.readFileSync fs "resources/cache/cljs/core.cljs" "utf8"))
 
   (goog/isString f)
 
@@ -220,5 +220,24 @@
                 (ana/analyze
                   (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
                   form)
+                (recur))))))))
+
+  ;; 8.6s Node.js
+  (time
+    (let [rdr (string-push-back-reader f)
+          eof (js-obj)
+          env (ana/empty-env)]
+      (binding [ana/*cljs-ns* 'cljs.user
+                *ns* (create-ns 'cljs.core)
+                r/*data-readers* tags/*cljs-data-readers*]
+        (with-compiler-env cenv
+          (loop []
+            (let [form (r/read {:eof eof} rdr)]
+              (when-not (identical? eof form)
+                (with-out-str
+                  (c/emit
+                    (ana/analyze
+                      (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
+                      form)))
                 (recur))))))))
   )

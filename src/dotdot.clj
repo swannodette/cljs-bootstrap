@@ -41,4 +41,12 @@
   ;; ~830ms
   (dotimes [_ 10]
     (time (ana/analyze-file "cljs/core.cljs")))
+
+  ;; 2.2s
+  (dotimes [_ 10]
+    (time
+      (env/ensure
+        (closure/compile-form-seq
+          (ana/forms-seq*
+            (io/reader (io/resource "cljs/core.cljs")))))))
   )
