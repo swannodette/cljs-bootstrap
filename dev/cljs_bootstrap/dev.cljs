@@ -14,8 +14,13 @@
             [clojure.walk]
             [clojure.set]
             [cljs.core$macros]
+            [goog.dom :as gdom]
+            [goog.events :as events]
             #_[clojure.browser.repl :as repl])
-  (:import [goog.net XhrIo]))
+  (:import [goog.net XhrIo]
+           [goog.events EventType]))
+
+(enable-console-print!)
 
 #_(defonce conn (repl/connect "http://localhost:9000/repl"))
 
@@ -46,19 +51,30 @@
                 form)
               (recur))))))))
 
+;; 1.7s on WebKit Nightly
+;; 3.5s on Firefox
+;; 4.2s on Canary
+(defn analyze-core [core]
+  (set! (. (gdom/getElement "time") -innerHTML)
+    (with-out-str (time (analyze-file core)))))
+
 (defn main []
   (go
-    (let [core-edn  (<! (get-file
-                          (str loc "cache/cljs/core.cljs.cache.aot.edn")))
-          macros-dn (<! (get-file
-                          (str loc "js/cljs/core$macros.cljc.cache.edn")))
-          core      (<! (get-file
-                          (str loc "js/cljs/core.cljs")))]
+    (let [core-edn   (<! (get-file
+                           "resources/cache/cljs/core.cljs.cache.aot.edn"))
+          macros-edn (<! (get-file
+                           "resources/js/cljs/core$macros.cljc.cache.edn"))
+          core       (<! (get-file
+                           "resources/js/cljs/core.cljs"))]
       (swap! cenv assoc-in [::ana/namespaces 'cljs.core]
         (edn/read-string core-edn))
       (swap! cenv assoc-in [::ana/namespaces 'cljs.core$macros]
         (edn/read-string macros-edn))
-      (time (analyze-file core)))))
+      (analyze-core core))))
+
+(events/listen (gdom/getElement "run") EventType.CLICK
+  (fn [e]
+    (main)))
 
 (comment
   (js/goog.require "cljs.core$macros")
