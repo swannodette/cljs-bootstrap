@@ -1,5 +1,6 @@
 (ns cljs-bootstrap.core
-  (:require-macros [cljs.env.macros :refer [ensure with-compiler-env]]
+  (:require-macros [cljs.core]
+                   [cljs.env.macros :refer [ensure with-compiler-env]]
                    [cljs.analyzer.macros :refer [no-warn]])
   (:require [cljs.pprint :refer [pprint]]
             [cljs.tagged-literals :as tags]
@@ -7,9 +8,14 @@
             [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.analyzer :as ana]
             [cljs.compiler :as c]
+            [clojure.walk]
+            [clojure.set]
+            [cljs.core$macros]
             [cljs.env :as env]
             [cljs.reader :as edn]
             [cljs.nodejs :as nodejs]))
+
+(enable-console-print!)
 
 #_(set! *target* "nodejs")
 (apply load-file ["./.cljs_node_repl/cljs/core$macros.js"])
@@ -51,7 +57,8 @@
               (recur))))))))
 
 (defn -main [& args]
-  (analyze-file core))
+  (dotimes [_ 10]
+    (time (analyze-file core))))
 
 (set! *main-cli-fn* -main)
 
