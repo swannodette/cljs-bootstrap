@@ -40,6 +40,7 @@
 
 (def core (.readFileSync fs "./.cljs_node_repl/cljs/core.cljs" "utf8"))
 
+;; 3.7s in Node.js with :simple :optimizations
 (defn analyze-file [f]
   (let [rdr (string-push-back-reader f)
         eof (js-obj)
@@ -56,9 +57,28 @@
                 form)
               (recur))))))))
 
+(defn eval [s]
+  (let [rdr (string-push-back-reader s)
+        eof (js-obj)
+        env (ana/empty-env)]
+    (binding [ana/*cljs-ns* 'cljs.user
+              *ns* (create-ns 'cljs.user)
+              r/*data-readers* tags/*cljs-data-readers*]
+      (with-compiler-env cenv
+        (loop []
+          (let [form (r/read {:eof eof} rdr)]
+            (when-not (identical? eof form)
+              (println
+                (js/eval
+                  (with-out-str
+                    (c/emit
+                      (ana/analyze
+                        (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
+                        form)))))
+              (recur))))))))
+
 (defn -main [& args]
-  (dotimes [_ 10]
-    (time (analyze-file core))))
+  (eval (first  args)))
 
 (set! *main-cli-fn* -main)
 
