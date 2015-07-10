@@ -154,6 +154,9 @@
               (when-not (identical? eof x)
                 (recur))))))))
 
+  ;; ~2.5s in Safari
+  ;; ~5s in Firefox
+  ;; ~5s in Chrome
   (time
     (let [rdr (string-push-back-reader f)
           eof (js-obj)
@@ -165,7 +168,7 @@
           (loop []
             (let [form (r/read {:eof eof} rdr)]
               (when-not (identical? eof form)
-                (prn form)
+                #_(prn form)
                 (ana/analyze
                   (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
                   form)
