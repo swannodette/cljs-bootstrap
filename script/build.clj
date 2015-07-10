@@ -2,6 +2,7 @@
 
 (b/build "src"
   {:output-to "main.js"
+   :target :nodejs
    :optimizations :simple
    :static-fns true
    :verbose true})
