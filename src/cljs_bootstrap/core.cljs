@@ -234,10 +234,29 @@
           (loop []
             (let [form (r/read {:eof eof} rdr)]
               (when-not (identical? eof form)
-                (with-out-str
-                  (c/emit
-                    (ana/analyze
-                      (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
-                      form)))
+                (c/emit
+                  (ana/analyze
+                    (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
+                    form))
+                (recur))))))))
+
+  ;; with printing
+  (time
+    (let [rdr (string-push-back-reader f)
+          eof (js-obj)
+          env (ana/empty-env)]
+      (binding [ana/*cljs-ns* 'cljs.user
+                *ns* (create-ns 'cljs.core)
+                r/*data-readers* tags/*cljs-data-readers*]
+        (with-compiler-env cenv
+          (loop []
+            (let [form (r/read {:eof eof} rdr)]
+              (when-not (identical? eof form)
+                (println
+                  (with-out-str
+                   (c/emit
+                     (ana/analyze
+                       (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
+                       form))))
                 (recur))))))))
   )
