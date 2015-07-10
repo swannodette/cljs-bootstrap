@@ -8,12 +8,52 @@
             [cljs.analyzer :as ana]
             [cljs.compiler :as c]
             [cljs.env :as env]
-            [cljs.reader :as edn]))
+            [cljs.reader :as edn]
+            [cljs.nodejs :as nodejs]))
 
-(set! *target* "nodejs")
+#_(set! *target* "nodejs")
 (apply load-file ["./.cljs_node_repl/cljs/core$macros.js"])
 
 (def cenv (env/default-compiler-env))
+
+(def fs (js/require "fs"))
+
+;; load cache files
+
+(def core-edn (.readFileSync fs "resources/cljs/core.cljs.cache.aot.edn" "utf8"))
+
+(swap! cenv assoc-in [::ana/namespaces 'cljs.core]
+  (edn/read-string core-edn))
+
+(def macros-edn (.readFileSync fs ".cljs_node_repl/cljs/core$macros.cljc.cache.edn" "utf8"))
+
+(swap! cenv assoc-in [::ana/namespaces 'cljs.core$macros]
+  (edn/read-string macros-edn))
+
+;; load standard lib
+
+(def core (.readFileSync fs "resources/cljs/core.cljs" "utf8"))
+
+(defn analyze-file [f]
+  (let [rdr (string-push-back-reader f)
+        eof (js-obj)
+        env (ana/empty-env)]
+    (binding [ana/*cljs-ns* 'cljs.user
+              *ns* (create-ns 'cljs.core)
+              r/*data-readers* tags/*cljs-data-readers*]
+      (with-compiler-env cenv
+        (loop []
+          (let [form (r/read {:eof eof} rdr)]
+            (when-not (identical? eof form)
+              (ana/analyze
+                (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
+                form)
+              (recur))))))))
+
+(defn -main [& args]
+  (analyze-file core))
+
+(set! *main-cli-fn* -main)
 
 (comment
   ;; NOTE: pprint'ing the AST seems to fail
