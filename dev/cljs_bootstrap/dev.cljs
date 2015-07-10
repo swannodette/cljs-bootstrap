@@ -1,6 +1,7 @@
 (ns cljs-bootstrap.dev
   (:require-macros [cljs.env.macros :refer [ensure with-compiler-env]]
-                   [cljs.analyzer.macros :refer [no-warn]])
+                   [cljs.analyzer.macros :refer [no-warn]]
+                   [cljs.core.async.macros :refer [go]])
   (:require [cljs.pprint :refer [pprint]]
             [cljs.tagged-literals :as tags]
             [cljs.tools.reader :as r]
@@ -9,17 +10,55 @@
             [cljs.compiler :as c]
             [cljs.env :as env]
             [cljs.reader :as edn]
-            [clojure.browser.repl :as repl])
+            [cljs.core.async :refer [>! <! take! put! chan]]
+            [clojure.walk]
+            [clojure.set]
+            [cljs.core$macros]
+            #_[clojure.browser.repl :as repl])
   (:import [goog.net XhrIo]))
 
-(defonce conn (repl/connect "http://localhost:9000/repl"))
+#_(defonce conn (repl/connect "http://localhost:9000/repl"))
 
 (def cenv (env/default-compiler-env))
 
-(defn get-file [url cb]
-  (.send XhrIo url
-    (fn [e]
-      (cb (.. e -target getResponseText)))))
+(defn get-file [url]
+  (let [c (chan)]
+    (.send XhrIo url
+      (fn [e]
+        (put! c (.. e -target getResponseText))))
+    c))
+
+(def loc js/window.location)
+
+(defn analyze-file [f]
+  (let [rdr (string-push-back-reader f)
+        eof (js-obj)
+        env (ana/empty-env)]
+    (binding [ana/*cljs-ns* 'cljs.user
+              *ns* (create-ns 'cljs.core)
+              r/*data-readers* tags/*cljs-data-readers*]
+      (with-compiler-env cenv
+        (loop []
+          (let [form (r/read {:eof eof} rdr)]
+            (when-not (identical? eof form)
+              (ana/analyze
+                (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
+                form)
+              (recur))))))))
+
+(defn main []
+  (go
+    (let [core-edn  (<! (get-file
+                          (str loc "cache/cljs/core.cljs.cache.aot.edn")))
+          macros-dn (<! (get-file
+                          (str loc "js/cljs/core$macros.cljc.cache.edn")))
+          core      (<! (get-file
+                          (str loc "js/cljs/core.cljs")))]
+      (swap! cenv assoc-in [::ana/namespaces 'cljs.core]
+        (edn/read-string core-edn))
+      (swap! cenv assoc-in [::ana/namespaces 'cljs.core$macros]
+        (edn/read-string macros-edn))
+      (time (analyze-file core)))))
 
 (comment
   (js/goog.require "cljs.core$macros")
@@ -111,34 +150,6 @@
 
   ;; load cache files
 
-  (def core-edn nil)
-
-  (get-file (str js/window.location "cache/cljs/core.cljs.cache.aot.edn")
-    (fn [txt] (set! core-edn txt)))
-
-  (goog/isString core-edn)
-
-  (swap! cenv assoc-in [::ana/namespaces 'cljs.core]
-    (edn/read-string core-edn))
-
-  (def macros-edn nil)
-
-  (get-file (str js/window.location "js/cljs/core$macros.cljc.cache.edn")
-    (fn [txt] (set! macros-edn txt)))
-
-  (goog/isString macros-edn)
-
-  (swap! cenv assoc-in [::ana/namespaces 'cljs.core$macros]
-    (edn/read-string macros-edn))
-
-  ;; load standard lib
-
-  (def f nil)
-
-  (get-file (str js/window.location "js/cljs/core.cljs")
-    (fn [txt] (set! f txt)))
-
-  (goog/isString f)
 
   ;; <70ms in WebKit Nightly
   ;; ~80ms in Firefox Nightly
