@@ -20,19 +20,19 @@
 
 ;; load cache files
 
-(def core-edn (.readFileSync fs "./cljs_node_repl/cljs/core.cljs.cache.aot.edn" "utf8"))
+(def core-edn (.readFileSync fs "./resources/cache/cljs/core.cljs.cache.aot.edn" "utf8"))
 
 (swap! cenv assoc-in [::ana/namespaces 'cljs.core]
   (edn/read-string core-edn))
 
-(def macros-edn (.readFileSync fs "./cljs_node_repl/cljs/core$macros.cljc.cache.edn" "utf8"))
+(def macros-edn (.readFileSync fs "./.cljs_node_repl/cljs/core$macros.cljc.cache.edn" "utf8"))
 
 (swap! cenv assoc-in [::ana/namespaces 'cljs.core$macros]
   (edn/read-string macros-edn))
 
 ;; load standard lib
 
-(def core (.readFileSync fs "./cljs_node_repl/cljs/core.cljs" "utf8"))
+(def core (.readFileSync fs "./.cljs_node_repl/cljs/core.cljs" "utf8"))
 
 (defn analyze-file [f]
   (let [rdr (string-push-back-reader f)
