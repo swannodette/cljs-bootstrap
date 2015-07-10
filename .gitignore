@@ -14,3 +14,5 @@ node_modules
 .idea
 .repl*
 resources/js
+out
+main.js

@@ -113,7 +113,7 @@
 
   (def core-edn nil)
 
-  (get-file (str js/window.location "cljs/core.cljs.cache.aot.edn")
+  (get-file (str js/window.location "cache/cljs/core.cljs.cache.aot.edn")
     (fn [txt] (set! core-edn txt)))
 
   (goog/isString core-edn)
@@ -142,7 +142,7 @@
 
   ;; <70ms in WebKit Nightly
   ;; ~80ms in Firefox Nightly
-  ;; <70ms in Chrome Canary
+  ;; ~60ms in Chrome Canary
   (dotimes [_ 10]
     (time
       (let [rdr (string-push-back-reader f)
