@@ -140,9 +140,9 @@
 
   (goog/isString f)
 
-  ;; ~70ms in WebKit Nightly
+  ;; <70ms in WebKit Nightly
   ;; ~80ms in Firefox Nightly
-  ;; ~100ms in Chrome Canary
+  ;; <70ms in Chrome Canary
   (dotimes [_ 10]
     (time
       (let [rdr (string-push-back-reader f)
@@ -154,9 +154,9 @@
               (when-not (identical? eof x)
                 (recur))))))))
 
-  ;; ~2.5s in Safari
+  ;; ~2.2-2.5s in Safari
   ;; ~5s in Firefox
-  ;; ~5s in Chrome
+  ;; ~4.5-5s in Chrome Canary
   (time
     (let [rdr (string-push-back-reader f)
           eof (js-obj)
@@ -173,4 +173,5 @@
                   (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
                   form)
                 (recur))))))))
+
   )

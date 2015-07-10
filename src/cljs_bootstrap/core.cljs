@@ -125,17 +125,19 @@
 
   (goog/isString f)
 
-  ;; ~350ms on work machine
-  (time
-    (let [rdr (string-push-back-reader f)
-          eof (js-obj)]
-      (binding [*ns* (create-ns 'cljs.analyzer)
-                r/*data-readers* tags/*cljs-data-readers*]
-        (loop []
-          (let [x (r/read {:eof eof} rdr)]
-            (when-not (identical? eof x)
-              (recur)))))))
+  ;; ~60ms Node.js
+  (dotimes [_ 10]
+    (time
+      (let [rdr (string-push-back-reader f)
+            eof (js-obj)]
+        (binding [*ns* (create-ns 'cljs.analyzer)
+                  r/*data-readers* tags/*cljs-data-readers*]
+          (loop []
+            (let [x (r/read {:eof eof} rdr)]
+              (when-not (identical? eof x)
+                (recur))))))))
 
+  ;; 4.3s Nodej.s
   (time
     (let [rdr (string-push-back-reader f)
           eof (js-obj)
@@ -147,7 +149,7 @@
           (loop []
             (let [form (r/read {:eof eof} rdr)]
               (when-not (identical? eof form)
-                (prn form)
+                #_(prn form)
                 (ana/analyze
                   (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
                   form)
