@@ -8,8 +8,8 @@
       <sourceFolder url="file://$MODULE_DIR$/dev-resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/browser" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/node" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/clojure" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/node" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.cljs_node_repl" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
