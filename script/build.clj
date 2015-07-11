@@ -1,6 +1,6 @@
 (require '[cljs.build.api :as b])
 
-(b/build "src"
+(b/build "src/node"
   {:output-to "main.js"
    :target :nodejs
    :optimizations :simple

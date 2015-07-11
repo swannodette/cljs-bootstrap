@@ -2,7 +2,7 @@
 (require '[cljs.repl :as repl])
 (require '[cljs.repl.browser :as browser])
 
-(b/build (b/inputs "dev")
+(b/build (b/inputs "src/browser")
   {:main 'cljs-bootstrap.dev
    :asset-path "/js"
    :output-to "resources/js/main.js"

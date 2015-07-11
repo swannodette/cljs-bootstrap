@@ -1,6 +1,6 @@
 (require '[cljs.build.api :as b])
 
-(b/build "dev"
+(b/build "src/browser"
   {:output-to "main.js"
    :optimizations :simple
    :static-fns true
