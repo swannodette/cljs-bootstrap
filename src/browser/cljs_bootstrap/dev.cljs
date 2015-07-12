@@ -51,9 +51,9 @@
                 form)
               (recur))))))))
 
-;; 1.7s on WebKit Nightly
+;; <1.6s on WebKit Nightly
 ;; 3.5s on Firefox
-;; 4.2s on Canary
+;; <3.0s on Canary
 (defn analyze-core [core]
   (set! (. (gdom/getElement "time") -innerHTML)
     (with-out-str (time (analyze-file core)))))
