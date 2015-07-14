@@ -4,6 +4,7 @@
   {:output-to "main.js"
    :target :nodejs
    :optimizations :simple
+   :cache-analysis true
    :static-fns true
    :optimize-constants true
    :verbose true})
