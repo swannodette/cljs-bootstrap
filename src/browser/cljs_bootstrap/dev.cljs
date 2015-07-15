@@ -46,9 +46,11 @@
         (loop []
           (let [form (r/read {:eof eof} rdr)]
             (when-not (identical? eof form)
-              (ana/analyze
-                (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
-                form)
+              (with-out-str
+                (c/emit
+                  (ana/analyze
+                    (assoc env :ns (ana/get-namespace ana/*cljs-ns*))
+                    form)))
               (recur))))))))
 
 ;; <1.6s on WebKit Nightly
