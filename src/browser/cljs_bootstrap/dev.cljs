@@ -35,7 +35,7 @@
 
 (def loc js/window.location)
 
-(defn analyze-file [f]
+(defn compile-file [f]
   (let [rdr (string-push-back-reader f)
         eof (js-obj)
         env (ana/empty-env)]
@@ -58,7 +58,7 @@
 ;; <3.0s on Canary
 (defn analyze-core [core]
   (set! (. (gdom/getElement "time") -innerHTML)
-    (with-out-str (time (analyze-file core)))))
+    (with-out-str (time (compile-file core)))))
 
 (defn main []
   (go
