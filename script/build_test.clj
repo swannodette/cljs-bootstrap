@@ -2,7 +2,6 @@
 
 (b/build "src/user"
   {:output-to "main.js"
-   :target :nodejs
    :optimizations :simple
    :pretty-print true
    :cache-analysis true
