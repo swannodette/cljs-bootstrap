@@ -11,6 +11,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/clojure" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/node" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/user" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.cljs_node_repl" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/.repl-0.0-3423" />
@@ -23,7 +24,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Leiningen: clojure-complete:0.2.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/clojure:1.7.0" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojure/clojurescript:0.0-3464" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/clojurescript:0.0-3506" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.async:0.1.346.0-17112a-alpha" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.nrepl:0.2.6" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.reader:0.10.0-SNAPSHOT" level="project" />
