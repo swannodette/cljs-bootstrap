@@ -1,4 +1,4 @@
- (ns cljs-bootstrap.test
-   (:require [cljs.js :as cljs]))
+(ns cljs-bootstrap.test
+  (:require [cljs.js :as cljs]))
 
- (enable-console-print!)
+(enable-console-print!)
