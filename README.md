@@ -89,6 +89,24 @@ Then load this project's namespace:
 Switch into this namespace and you should be able to eval the comment snippets
 in the `src/cljs_bootstrap/core.cljs` source file.
 
+## Compiling cljs.core in the browser and benchmarking
+
+After setting up, compile `cljs-bootstrap.dev` which contains the
+benchmarking code:
+
+    lein run -m clojure.main script/browser.clj
+
+Then start a local server to view the files:
+
+    python -m SimpleHTTPServer 8000
+
+Go to
+[http://localhost:8000/index.html](http://localhost:8000/index.html),
+where you'll see a button: `Compile Core!`. When you click it, the
+script we compiled earlier, `cljs-bootstrap.dev`, will fetch
+`cljs.core`, compile it, and then present you with how it took to
+compile (not to fetch).
+
 ## License
 
 Copyright © 2015 David Nolen, Rich Hickey & Contributors
