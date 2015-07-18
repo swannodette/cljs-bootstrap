@@ -3,11 +3,7 @@
 
 (ns cljs-bootstrap.test
   (:require-macros [cljs.env.macros :as env])
-  (:require [cljs.js :as cljs]
-            [cljs.pprint :as pp]
-            [cljs.env :as env]
-            [cljs.analyzer :as ana]
-            [cljs.compiler :as comp]))
+  (:require [cljs.js :as cljs]))
 
 (enable-console-print!)
 
