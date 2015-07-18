@@ -2,7 +2,8 @@
   (:require-macros [cljs.env.macros :refer [ensure with-compiler-env]]
                    [cljs.analyzer.macros :refer [no-warn]]
                    [cljs.core.async.macros :refer [go]])
-  (:require [cljs.pprint :refer [pprint]]
+  (:require [cljs.js :as cljs]
+            [cljs.pprint :refer [pprint]]
             [cljs.tagged-literals :as tags]
             [cljs.tools.reader :as r]
             [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
@@ -11,9 +12,6 @@
             [cljs.env :as env]
             [cljs.reader :as edn]
             [cljs.core.async :refer [>! <! take! put! chan]]
-            [clojure.walk]
-            [clojure.set]
-            [cljs.core$macros]
             [goog.dom :as gdom]
             [goog.events :as events]
             #_[clojure.browser.repl :as repl])
@@ -79,8 +77,6 @@
     (main)))
 
 (comment
-  (js/goog.require "cljs.core$macros")
-
   ;; NOTE: pprint'ing the AST seems to fail
 
   ;; works
