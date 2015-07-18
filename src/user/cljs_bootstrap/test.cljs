@@ -2,7 +2,10 @@
 ;; delete src/clojure/cljs/core$macros.js
 
 (ns cljs-bootstrap.test
-  (:require [cljs.js :as cljs]))
+  (:require-macros [cljs.env.macros :as env])
+  (:require [cljs.js :as cljs]
+            [cljs.analyzer :as ana]
+            [cljs.compiler :as comp]))
 
 (enable-console-print!)
 
@@ -10,6 +13,14 @@
 (def cenv (cljs/empty-env))
 
 (comment
+  ;; ns missing problem
+  (env/with-compiler-env cenv
+    (with-out-str
+      (comp/emit
+        (ana/analyze (ana/empty-env)
+          '(defn foo [a b] (+ a b))))))
+
+  ;; does not work yet
   (cljs/eval cenv '(defn foo [a b] (+ a b))
     (fn [res]
       (println res)))
