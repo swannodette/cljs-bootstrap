@@ -14,11 +14,11 @@
             [cljs.nodejs :as nodejs]))
 
 (enable-console-print!)
-(set! *target* "nodejs")
+#_(set! *target* "nodejs")
 
 (def cenv (env/default-compiler-env))
-(def fs (js/require "fs"))
-(def core (.readFileSync fs "./.cljs_node_repl/cljs/core.cljs" "utf8"))
+#_(def fs (js/require "fs"))
+#_(def core (.readFileSync fs "./out/cljs/core.cljs" "utf8"))
 
 ;; 3.7s in Node.js with :simple :optimizations
 (defn analyze-file [f]
