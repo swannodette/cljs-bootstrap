@@ -11,7 +11,23 @@
   (require-macros '[cljs.env.macros :as env])
   (require '[cljs.pprint :as pp]
            '[cljs.env :as env]
-           '[cljs.analyzer :as ana])
+           '[cljs.analyzer :as ana]
+           '[cljs.compiler :as comp])
+
+  ;; works
+  (env/with-compiler-env (env/default-compiler-env)
+    (ana/analyze (ana/empty-env) '(ns cljs.user)))
+
+  ;; also works
+  (env/with-compiler-env (env/default-compiler-env)
+    (with-out-str
+      (comp/emit (ana/analyze (ana/empty-env) '(ns cljs.user)))))
+
+  ;; also works
+  (env/with-compiler-env (env/default-compiler-env)
+    (js/eval
+      (with-out-str
+        (comp/emit (ana/analyze (ana/empty-env) '(ns foo.bar))))))
 
   ;; works
   (cljs/eval cenv '(defn foo [a b] (+ a b))
@@ -30,8 +46,11 @@
       (println res)))
 
   ;; doesn't work yet
-  (cljs/compile cenv "(ns cljs.user)"
-    (fn [js-source]
-      (println "Source:")
-      (println js-source)))
+  (try
+    (cljs/compile cenv "(ns cljs.user)"
+      (fn [js-source]
+        (println "Source:")
+        (println js-source)))
+    (catch js/Error e
+      (println e)))
   )
