@@ -41,7 +41,7 @@
   (binding [cljs/*load-fn*
             (fn [lib]
               (println lib)
-              "function hello() { console.log(\"Hello!\"); }=")]
+              "function hello() { console.log(\"Hello!\"); };")]
     (cljs/compile cenv "(ns foo.bar (:require [hello-world.core]))"
      {:verbose true}
      (fn [js-source]
