@@ -18,12 +18,17 @@
   (env/with-compiler-env (env/default-compiler-env)
     (ana/analyze (ana/empty-env) '(ns cljs.user)))
 
-  ;; also works
+  ;; works
+  (env/with-compiler-env (env/default-compiler-env)
+    (ana/analyze (assoc (ana/empty-env) :ns (ana/get-namespace 'cljs.user))
+      '(ns cljs.user)))
+
+  ;; works
   (env/with-compiler-env (env/default-compiler-env)
     (with-out-str
       (comp/emit (ana/analyze (ana/empty-env) '(ns cljs.user)))))
 
-  ;; also works
+  ;; works
   (env/with-compiler-env (env/default-compiler-env)
     (js/eval
       (with-out-str
@@ -34,11 +39,25 @@
     (fn [res]
       (println res)))
 
+  ;; works
+  (cljs/eval cenv '(ns foo.bar)
+    (fn [res]
+      (println res)))
+
+  ;; works
   (cljs/compile cenv "(defn foo [a b] (+ a b))"
     (fn [js-source]
       (println "Source:")
       (println js-source)))
 
+  ;; does not work
+  (cljs/compile cenv "(ns foo.bar)"
+    {:verbose true}
+    (fn [js-source]
+      (println "Source:")
+      (println js-source)))
+
+  ;; works
   (cljs/eval-str cenv
     "(defn foo [a b] (+ a b))
      (defn bar [c d] (+ c d))"
