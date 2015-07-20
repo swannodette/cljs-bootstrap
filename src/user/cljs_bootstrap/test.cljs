@@ -20,6 +20,7 @@
 
   (cljs/compile cenv "(defn foo [a b] (+ a b))"
     (fn [js-source]
+      (println "Source:")
       (println js-source)))
 
   (cljs/eval-str cenv
@@ -27,4 +28,10 @@
      (defn bar [c d] (+ c d))"
     (fn [res]
       (println res)))
+
+  ;; doesn't work yet
+  (cljs/compile cenv "(ns cljs.user)"
+    (fn [js-source]
+      (println "Source:")
+      (println js-source)))
   )
