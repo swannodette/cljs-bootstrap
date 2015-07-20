@@ -1,6 +1,5 @@
 (ns cljs-bootstrap.test
-  (:require [cljs.js :as cljs]
-            [cljs.analyzer :as ana]))
+  (:require [cljs.js :as cljs]))
 
 (enable-console-print!)
 
@@ -20,7 +19,7 @@
       (println res)))
 
   ;; works
-  (cljs/compile cenv "(defn foo [a b] (+ a b))"
+  (cljs/compile cenv "(defprotocol IFoo (foo [this]))"
     (fn [js-source]
       (println "Source:")
       (println js-source)))
@@ -37,11 +36,10 @@
     (fn [res]
       (println res)))
 
-
   (binding [cljs/*load-fn*
-            (fn [lib]
+            (fn [lib cb]
               (println lib)
-              "function hello() { console.log(\"Hello!\"); };")]
+              (cb "function hello() { console.log(\"Hello!\"); };"))]
     (cljs/compile cenv "(ns foo.bar (:require [hello-world.core]))"
      {:verbose true}
      (fn [js-source]
