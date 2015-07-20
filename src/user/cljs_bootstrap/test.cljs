@@ -15,44 +15,12 @@
            '[cljs.compiler :as comp])
 
   ;; works
-  (env/with-compiler-env (env/default-compiler-env)
-    (ana/analyze (ana/empty-env) '(ns cljs.user)))
-
-  ;; works
-  (env/with-compiler-env (env/default-compiler-env)
-    (ana/analyze (assoc (ana/empty-env) :ns (ana/get-namespace 'cljs.user))
-      '(ns cljs.user)))
-
-  ;; works
-  (env/with-compiler-env (env/default-compiler-env)
-    (with-out-str
-      (comp/emit (ana/analyze (ana/empty-env) '(ns cljs.user)))))
-
-  ;; works
-  (env/with-compiler-env (env/default-compiler-env)
-    (js/eval
-      (with-out-str
-        (comp/emit (ana/analyze (ana/empty-env) '(ns foo.bar))))))
-
-  ;; works
   (cljs/eval cenv '(defn foo [a b] (+ a b))
     (fn [res]
       (println res)))
 
   ;; works
-  (cljs/eval cenv '(ns foo.bar)
-    (fn [res]
-      (println res)))
-
-  ;; works
   (cljs/compile cenv "(defn foo [a b] (+ a b))"
-    (fn [js-source]
-      (println "Source:")
-      (println js-source)))
-
-  ;; does not work
-  (cljs/compile cenv "(ns foo.bar)"
-    {:verbose true}
     (fn [js-source]
       (println "Source:")
       (println js-source)))
@@ -64,12 +32,19 @@
     (fn [res]
       (println res)))
 
-  ;; doesn't work yet
-  (try
-    (cljs/compile cenv "(ns cljs.user)"
-      (fn [js-source]
-        (println "Source:")
-        (println js-source)))
-    (catch js/Error e
-      (println e)))
+  ;; works
+  (cljs/eval cenv '(ns foo.bar)
+    (fn [res]
+      (println res)))
+
+
+  (binding [cljs/*load-fn*
+            (fn [lib]
+              (println lib)
+              "function hello() { console.log(\"Hello!\"); }=")]
+    (cljs/compile cenv "(ns foo.bar (:require [hello-world.core]))"
+     {:verbose true}
+     (fn [js-source]
+       (println "Source:")
+       (println js-source))))
   )
