@@ -18,11 +18,6 @@
     (fn [res]
       (println res)))
 
-  ;; 2nd eval fails
-  (cljs/eval cenv '(defn bar [a b] (+ a b))
-    (fn [res]
-      (println res)))
-
   (cljs/compile cenv "(defn foo [a b] (+ a b))"
     (fn [js-source]
       (println js-source)))
