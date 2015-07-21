@@ -54,7 +54,8 @@
 
   (cljs/eval-str st "(ns foo.bar (:require [hello-world.core]))"
     {:verbose true
-     :eval-fn (fn [{:keys [source]}] (.runInThisContext vm source "wat.js"))
+     :eval-fn (fn [{:keys [name source]}]
+                (.runInThisContext vm source name))
      :load-fn (fn [{:keys [name]} cb]
                 (println name)
                 (cb {:lang :js
