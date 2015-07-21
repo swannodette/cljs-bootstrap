@@ -4,7 +4,7 @@
 (enable-console-print!)
 
 (set! *target* "nodejs")
-(def cenv (cljs/empty-env))
+(def st (cljs/empty-state))
 
 (comment
   (require-macros '[cljs.env.macros :as env])
@@ -14,25 +14,25 @@
            '[cljs.compiler :as comp])
 
   ;; works
-  (cljs/eval cenv '(defn foo [a b] (+ a b))
+  (cljs/eval st '(defn foo [a b] (+ a b))
     (fn [res]
       (println res)))
 
   ;; works
-  (cljs/compile cenv "(defprotocol IFoo (foo [this]))"
+  (cljs/compile st "(defprotocol IFoo (foo [this]))"
     (fn [js-source]
       (println "Source:")
       (println js-source)))
 
   ;; works
-  (cljs/eval-str cenv
+  (cljs/eval-str st
     "(defn foo [a b] (+ a b))
      (defn bar [c d] (+ c d))"
     (fn [res]
       (println res)))
 
   ;; works
-  (cljs/eval cenv '(ns foo.bar)
+  (cljs/eval st '(ns foo.bar)
     (fn [res]
       (println res)))
 
@@ -40,7 +40,7 @@
             (fn [lib cb]
               (println lib)
               (cb "function hello() { console.log(\"Hello!\"); };"))]
-    (cljs/compile cenv "(ns foo.bar (:require [hello-world.core]))"
+    (cljs/compile st "(ns foo.bar (:require [hello-world.core]))"
      {:verbose true}
      (fn [js-source]
        (println "Source:")
