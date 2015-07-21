@@ -45,10 +45,18 @@
               (cb {:lang :js
                    :source "function hello() { console.log(\"Hello!\"); };"}))]
     (cljs/compile st "(ns foo.bar (:require [hello-world.core]))"
-      {:verbose true}
+      {:verbose true
+       :source-map true}
       (fn [js-source]
         (println "Source:")
         (println js-source))))
+
+  ;; works!
+  (cljs/compile st "(defn foo\n[a b]\n(+ a b))" nil
+    {:verbose true :source-map true}
+    (fn [js-source]
+      (println "Source:")
+      (println js-source)))
 
   (def vm (js/require "vm"))
 
