@@ -34,6 +34,21 @@
       (println res)))
 
   ;; works
+  (cljs/eval-str st "1"
+    {:eval-fn cljs/js-eval
+     :context :expr}
+    (fn [res]
+      (println res)))
+
+  ;; works
+  (cljs/eval-str st "(def x 1)"
+    {:eval-fn cljs/js-eval
+     :context :expr
+     :def-emits-var true}
+    (fn [res]
+      (println res)))
+
+  ;; works
   (cljs/eval st '(ns foo.bar)
     {:eval-fn cljs/js-eval}
     (fn [res]
