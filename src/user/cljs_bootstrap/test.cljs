@@ -52,7 +52,7 @@
         (println js-source))))
 
   ;; works!
-  (cljs/compile st "(defn foo\n[a b]\n(+ a b))" nil
+  (cljs/compile st "(defn foo\n[a b]\n(+ a b))" 'cljs.foo
     {:verbose true :source-map true}
     (fn [js-source]
       (println "Source:")
@@ -63,7 +63,7 @@
   (cljs/eval-str st "(ns foo.bar (:require [hello-world.core]))"
     {:verbose true
      :eval-fn (fn [{:keys [name source]}]
-                (.runInThisContext vm source name))
+                (.runInThisContext vm source (str (munge name) ".js")))
      :load-fn (fn [{:keys [name]} cb]
                 (println name)
                 (cb {:lang :js
