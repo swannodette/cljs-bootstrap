@@ -39,10 +39,24 @@
   (binding [cljs/*load-fn*
             (fn [lib cb]
               (println lib)
-              (cb "function hello() { console.log(\"Hello!\"); };"))]
+              (cb {:lang :js
+                   :source "function hello() { console.log(\"Hello!\"); };"}))]
     (cljs/compile st "(ns foo.bar (:require [hello-world.core]))"
-     {:verbose true}
-     (fn [js-source]
-       (println "Source:")
-       (println js-source))))
+      {:verbose true}
+      (fn [js-source]
+        (println "Source:")
+        (println js-source))))
+
+  (def vm (js/require "vm"))
+
+  (cljs/eval-str st "(ns foo.bar (:require [hello-world.core]))"
+    {:verbose true
+     :eval-fn (fn [source] (.runInThisContext vm source "wat.js"))
+     :load-fn (fn [lib cb]
+                (println lib)
+                (cb {:lang :js
+                     :source "function hello() { console.log(\"Hello!\"); };"}))}
+    (fn [js-source]
+      (println "Source:")
+      (println js-source)))
   )
