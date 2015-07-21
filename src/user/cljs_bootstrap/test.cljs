@@ -15,6 +15,7 @@
 
   ;; works
   (cljs/eval st '(defn foo [a b] (+ a b))
+    {:eval-fn cljs/js-eval}
     (fn [res]
       (println res)))
 
@@ -28,17 +29,19 @@
   (cljs/eval-str st
     "(defn foo [a b] (+ a b))
      (defn bar [c d] (+ c d))"
+    {:eval-fn cljs/js-eval}
     (fn [res]
       (println res)))
 
   ;; works
   (cljs/eval st '(ns foo.bar)
+    {:eval-fn cljs/js-eval}
     (fn [res]
       (println res)))
 
   (binding [cljs/*load-fn*
-            (fn [lib cb]
-              (println lib)
+            (fn [{:keys [name]} cb]
+              (println name)
               (cb {:lang :js
                    :source "function hello() { console.log(\"Hello!\"); };"}))]
     (cljs/compile st "(ns foo.bar (:require [hello-world.core]))"
@@ -51,9 +54,9 @@
 
   (cljs/eval-str st "(ns foo.bar (:require [hello-world.core]))"
     {:verbose true
-     :eval-fn (fn [source] (.runInThisContext vm source "wat.js"))
-     :load-fn (fn [lib cb]
-                (println lib)
+     :eval-fn (fn [{:keys [source]}] (.runInThisContext vm source "wat.js"))
+     :load-fn (fn [{:keys [name]} cb]
+                (println name)
                 (cb {:lang :js
                      :source "function hello() { console.log(\"Hello!\"); };"}))}
     (fn [js-source]

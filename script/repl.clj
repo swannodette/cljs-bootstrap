@@ -2,4 +2,5 @@
 (require '[cljs.repl.node :as node])
 
 (repl/repl (node/repl-env)
-  :static-fns true)
+  :static-fns true
+  :verbose true)
