@@ -74,16 +74,30 @@
       (println js-source)))
 
   (def vm (js/require "vm"))
+  (def fs (js/require "fs"))
 
+  ;; bar compiled in the wrong namespace
   (cljs/eval-str st "(ns foo.bar (:require [hello-world.core]))"
     {:verbose true
      :eval-fn (fn [{:keys [name source]}]
                 (.runInThisContext vm source (str (munge name) ".js")))
      :load-fn (fn [{:keys [name]} cb]
-                (println name)
-                (cb {:lang :js
-                     :source "function hello() { console.log(\"Hello!\"); };"}))}
-    (fn [js-source]
-      (println "Source:")
-      (println js-source)))
+                (when (= name 'hello-world.core)
+                  (let [path (str "src/user/" (cljs/ns->relpath name) ".cljs")]
+                    (.readFile fs path "utf-8"
+                      (fn [err src]
+                        (cb (if-not err
+                              {:lang :clj :source src}
+                              (.error js/console err))))))))}
+    (fn [ret]
+      (println ret)))
+
+  ;; sanity check
+  (let [path (str "src/user/hello_world/core.cljs")]
+    (.readFile fs path "utf-8"
+      (fn [err src]
+        (prn
+          (if-not err
+            {:lang :clj :source src}
+            (.error js/console err))))))
   )
