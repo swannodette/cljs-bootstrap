@@ -3,8 +3,23 @@
 
 (enable-console-print!)
 
+(def vm (js/require "vm"))
+(def fs (js/require "fs"))
+
 (set! *target* "nodejs")
 (def st (cljs/empty-state))
+
+(defn node-eval [{:keys [name source]}]
+  (.runInThisContext vm source (str (munge name) ".js")))
+
+(defn node-load [{:keys [name]} cb]
+  (when (= name 'hello-world.core)
+    (let [path (str "src/user/" (cljs/ns->relpath name) ".cljs")]
+      (.readFile fs path "utf-8"
+        (fn [err src]
+          (cb (if-not err
+                {:lang :clj :source src}
+                (.error js/console err))))))))
 
 (comment
   (require-macros '[cljs.env.macros :as env])
@@ -73,22 +88,12 @@
       (println "Source:")
       (println js-source)))
 
-  (def vm (js/require "vm"))
-  (def fs (js/require "fs"))
-
   ;; bar compiled in the wrong namespace
-  (cljs/eval-str st "(ns foo.bar (:require [hello-world.core]))\n(hello-world.core/bar 3 4)"
+  (cljs/eval-str st
+    "(ns foo.bar (:require [hello-world.core]))\n(hello-world.core/bar 3 4)"
     {:verbose true
-     :eval-fn (fn [{:keys [name source]}]
-                (.runInThisContext vm source (str (munge name) ".js")))
-     :load-fn (fn [{:keys [name]} cb]
-                (when (= name 'hello-world.core)
-                  (let [path (str "src/user/" (cljs/ns->relpath name) ".cljs")]
-                    (.readFile fs path "utf-8"
-                      (fn [err src]
-                        (cb (if-not err
-                              {:lang :clj :source src}
-                              (.error js/console err))))))))}
+     :eval-fn node-eval
+     :load-fn node-load}
     (fn [ret]
       (println ret)))
 
