@@ -77,7 +77,7 @@
   (def fs (js/require "fs"))
 
   ;; bar compiled in the wrong namespace
-  (cljs/eval-str st "(ns foo.bar (:require [hello-world.core]))"
+  (cljs/eval-str st "(ns foo.bar (:require [hello-world.core]))\n(hello-world.core/bar 3 4)"
     {:verbose true
      :eval-fn (fn [{:keys [name source]}]
                 (.runInThisContext vm source (str (munge name) ".js")))
