@@ -91,7 +91,9 @@
   ;; bar compiled in the wrong namespace
   (cljs/eval-str st
     "(ns foo.bar (:require [hello-world.core]))\n(hello-world.core/bar 3 4)"
+    'foo.bar
     {:verbose true
+     :source-map true
      :eval-fn node-eval
      :load-fn node-load}
     (fn [ret]
