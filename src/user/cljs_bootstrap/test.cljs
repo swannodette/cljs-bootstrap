@@ -12,14 +12,20 @@
 (defn node-eval [{:keys [name source]}]
   (.runInThisContext vm source (str (munge name) ".js")))
 
-(defn node-load [{:keys [name]} cb]
-  (when (= name 'hello-world.core)
-    (let [path (str "src/user/" (cljs/ns->relpath name) ".cljs")]
+(def libs
+  {'hello-world.core   :cljs
+   'hello-world.macros :clj})
+
+(defn node-load [{:keys [name macros]} cb]
+  (if (contains? libs name)
+    (let [path (str "src/user/" (cljs/ns->relpath name)
+                    "." (cljs.core/name (get libs name)))]
       (.readFile fs path "utf-8"
         (fn [err src]
           (cb (if-not err
                 {:lang :clj :source src}
-                (.error js/console err))))))))
+                (.error js/console err))))))
+    (cb nil)))
 
 (comment
   (require-macros '[cljs.env.macros :as env])
@@ -88,9 +94,20 @@
       (println "Source:")
       (println js-source)))
 
-  ;; bar compiled in the wrong namespace
+  ;; works!
   (cljs/eval-str st
     "(ns foo.bar (:require [hello-world.core]))\n(hello-world.core/bar 3 4)"
+    'foo.bar
+    {:verbose true
+     :source-map true
+     :eval node-eval
+     :load node-load}
+    (fn [ret]
+      (println ret)))
+
+  ;; wip
+  (cljs/eval-str st
+    "(ns foo.bar (:require-macros [hello-world.macros :refer [mult]))\n(mult 3 4)"
     'foo.bar
     {:verbose true
      :source-map true
