@@ -113,8 +113,10 @@
      :source-map true
      :eval node-eval
      :load node-load}
-    (fn [ret]
-      (println ret)))
+    (fn [{:keys [error] :as res}]
+      (if error
+        (println (.. error -cause -stack))
+        (println res))))
 
   ;; sanity check
   (let [path (str "src/user/hello_world/core.cljs")]
