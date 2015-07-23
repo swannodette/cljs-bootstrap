@@ -107,7 +107,7 @@
 
   ;; wip
   (cljs/eval-str st
-    "(ns foo.bar (:require-macros [hello-world.macros :refer [mult]))\n(mult 3 4)"
+    "(ns foo.bar (:require-macros [hello-world.macros :refer [mult]]))\n(mult 3 4)"
     'foo.bar
     {:verbose true
      :source-map true
