@@ -30,7 +30,7 @@
 
   ;; works
   (cljs/eval st '(defn foo [a b] (+ a b))
-    {:eval-fn cljs/js-eval}
+    {:eval cljs/js-eval}
     (fn [res]
       (println res)))
 
@@ -44,20 +44,20 @@
   (cljs/eval-str st
     "(defn foo [a b] (+ a b))
      (defn bar [c d] (+ c d))"
-    {:eval-fn cljs/js-eval}
+    {:eval cljs/js-eval}
     (fn [res]
       (println res)))
 
   ;; works
   (cljs/eval-str st "1"
-    {:eval-fn cljs/js-eval
+    {:eval cljs/js-eval
      :context :expr}
     (fn [res]
       (println res)))
 
   ;; works
   (cljs/eval-str st "(def x 1)"
-    {:eval-fn cljs/js-eval
+    {:eval cljs/js-eval
      :context :expr
      :def-emits-var true}
     (fn [res]
@@ -65,7 +65,7 @@
 
   ;; works
   (cljs/eval st '(ns foo.bar)
-    {:eval-fn cljs/js-eval}
+    {:eval cljs/js-eval}
     (fn [res]
       (println res)))
 
@@ -94,8 +94,8 @@
     'foo.bar
     {:verbose true
      :source-map true
-     :eval-fn node-eval
-     :load-fn node-load}
+     :eval node-eval
+     :load node-load}
     (fn [ret]
       (println ret)))
 
