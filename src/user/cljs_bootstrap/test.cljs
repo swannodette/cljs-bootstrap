@@ -107,7 +107,7 @@
 
   ;; wip
   (cljs/eval-str st
-    "(ns foo.bar (:require-macros [hello-world.macros :refer [mult]]))\n(mult 3 4)"
+    "(ns foo.bar (:require-macros [hello-world.macros :refer [mult]]))\n(mult 4 4)"
     'foo.bar
     {:verbose true
      :source-map true
@@ -115,7 +115,9 @@
      :load node-load}
     (fn [{:keys [error] :as res}]
       (if error
-        (println (.. error -cause -stack))
+        (do
+          (println error)
+          (println (.. error -cause -stack)))
         (println res))))
 
   ;; sanity check

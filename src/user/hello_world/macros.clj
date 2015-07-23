@@ -1,4 +1,4 @@
 (ns hello-world.macros)
 
-(defmacro multi [a b]
+(defmacro mult [a b]
   `(* ~a ~b))
