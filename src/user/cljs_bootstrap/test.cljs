@@ -25,14 +25,13 @@
   (let [core-cache-transit (.readFileSync fs cache-transit-path "utf-8")]
     (t/read (t/reader :json) core-cache-transit)))
 
-(defn load-cache [state]
-  (assoc-in state [:cljs.analyzer/namespaces 'cljs.core]
-    (read-transit-cache)))
+(defn load-core [pure-state]
+  (cljs/load-ns pure-state 'cljs.core (read-transit-cache)))
 
 ;; -----------------------------------------------------------------------------
 ;; Main
 
-(def st (cljs/empty-state load-cache))
+(def st (cljs/empty-state load-core))
 
 (defn node-eval [{:keys [name source]}]
   (.runInThisContext vm source (str (munge name) ".js")))
