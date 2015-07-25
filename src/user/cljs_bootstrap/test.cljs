@@ -126,9 +126,23 @@
           (println error)
           (println (.. error -cause -stack)))
         (println res))))
-  
+
   (cljs/eval-str st
     "(ns foo.bar)\n(first [1 2 3])"
+    'foo.bar
+    {:verbose true
+     :source-map true
+     :eval node-eval
+     :load node-load}
+    (fn [{:keys [error] :as res}]
+      (if error
+        (do
+          (println error)
+          (println (.. error -cause -stack)))
+        (println res))))
+
+  (cljs/eval-str st
+    "(ns foo.bar)\n(map inc [1 2 3])"
     'foo.bar
     {:verbose true
      :source-map true
