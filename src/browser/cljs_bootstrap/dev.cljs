@@ -22,7 +22,7 @@
 
 #_(defonce conn (repl/connect "http://localhost:9000/repl"))
 
-(def cenv (env/default-compiler-env))
+(def cenv (cljs/empty-state))
 
 (defn get-file [url]
   (let [c (chan)]

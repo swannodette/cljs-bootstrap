@@ -8,7 +8,7 @@
             [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.analyzer :as ana]
             [cljs.compiler :as c]
-            [cljs.js]
+            [cljs.js :as cljs]
             [cljs.env :as env]
             [cljs.reader :as edn]
             [cljs.nodejs :as nodejs]))
@@ -16,7 +16,7 @@
 (enable-console-print!)
 #_(set! *target* "nodejs")
 
-(def cenv (env/default-compiler-env))
+(def cenv (cljs/empty-state))
 #_(def fs (js/require "fs"))
 #_(def core (.readFileSync fs "./out/cljs/core.cljs" "utf8"))
 
@@ -58,6 +58,6 @@
               (recur))))))))
 
 (defn -main [& args]
-  (eval (first  args)))
+  (eval (first args)))
 
 (set! *main-cli-fn* -main)
