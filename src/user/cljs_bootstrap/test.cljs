@@ -1,13 +1,38 @@
 (ns cljs-bootstrap.test
-  (:require [cljs.js :as cljs]))
+  (:require [cljs.js :as cljs]
+            [cljs.reader :refer [read-string]]
+            [cognitect.transit :as t]))
 
+(set! *target* "nodejs")
 (enable-console-print!)
 
 (def vm (js/require "vm"))
 (def fs (js/require "fs"))
 
-(set! *target* "nodejs")
-(def st (cljs/empty-state))
+;; -----------------------------------------------------------------------------
+;; Cache loading
+
+(def cache-path "resources/cache/cljs/core.cljs.cache.aot.edn")
+(def cache-transit-path "resources/cache/cljs/core.cljs.cache.aot.json")
+
+(defn convert-cache []
+  (let [core-cache (read-string (.readFileSync fs cache-path "utf-8"))
+        core-cache-transit (t/write (t/writer :json) core-cache)]
+    (.writeFileSync fs cache-transit-path core-cache-transit "utf-8")))
+
+;; 40ms to read
+(defn read-transit-cache []
+  (let [core-cache-transit (.readFileSync fs cache-transit-path "utf-8")]
+    (t/read (t/reader :json) core-cache-transit)))
+
+(defn load-cache [state]
+  (assoc-in state [:cljs.analyzer/namespaces 'cljs.core]
+    (read-transit-cache)))
+
+;; -----------------------------------------------------------------------------
+;; Main
+
+(def st (cljs/empty-state load-cache))
 
 (defn node-eval [{:keys [name source]}]
   (.runInThisContext vm source (str (munge name) ".js")))
@@ -101,8 +126,7 @@
           (println error)
           (println (.. error -cause -stack)))
         (println res))))
-
-  ;; core names are not correctly resolved
+  
   (cljs/eval-str st
     "(ns foo.bar)\n(first [1 2 3])"
     'foo.bar
