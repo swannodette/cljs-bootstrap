@@ -14,15 +14,15 @@
             [cljs.core.async :refer [>! <! take! put! chan]]
             [goog.dom :as gdom]
             [goog.events :as events]
-            #_[clojure.browser.repl :as repl])
+            [clojure.browser.repl :as repl])
   (:import [goog.net XhrIo]
            [goog.events EventType]))
 
 (enable-console-print!)
 
-#_(defonce conn (repl/connect "http://localhost:9000/repl"))
+(defonce conn (repl/connect "http://localhost:9000/repl"))
 
-(def cenv (cljs/empty-state))
+(def st (cljs/empty-state))
 
 (defn get-file [url]
   (let [c (chan)]
@@ -31,8 +31,6 @@
         (put! c (.. e -target getResponseText))))
     c))
 
-(def loc js/window.location)
-
 (defn compile-file [f]
   (let [rdr (string-push-back-reader f)
         eof (js-obj)
@@ -40,7 +38,7 @@
     (binding [ana/*cljs-ns* 'cljs.user
               *ns* (create-ns 'cljs.core)
               r/*data-readers* tags/*cljs-data-readers*]
-      (with-compiler-env cenv
+      (cljs/with-state st
         (loop []
           (let [form (r/read {:eof eof} rdr)]
             (when-not (identical? eof form)
@@ -60,18 +58,156 @@
 
 (defn main []
   (go
-    (let [core-edn   (<! (get-file
-                           "resources/cache/cljs/core.cljs.cache.aot.edn"))
-          macros-edn (<! (get-file
-                           "resources/js/cljs/core$macros.cljc.cache.edn"))
-          core       (<! (get-file
-                           "resources/js/cljs/core.cljs"))]
-      (swap! cenv assoc-in [::ana/namespaces 'cljs.core]
-        (edn/read-string core-edn))
-      (swap! cenv assoc-in [::ana/namespaces 'cljs.core$macros]
-        (edn/read-string macros-edn))
+    (let [core (<! (get-file "resources/js/cljs/core.cljs"))]
       (analyze-core core))))
 
-(events/listen (gdom/getElement "run") EventType.CLICK
-  (fn [e]
-    (main)))
+(when-let [button (gdom/getElement "run")]
+  (events/listen button EventType.CLICK
+    (fn [e]
+      (main))))
+
+(def libs
+  {'hello-world.core   :cljs
+   'hello-world.macros :clj})
+
+(defn browser-load [{:keys [name macros]} cb]
+  (if (contains? libs name)
+    (let [path (str "src/user/" (cljs/ns->relpath name)
+                 "." (cljs.core/name (get libs name)))]
+      (.readFile fs path "utf-8"
+        (fn [err src]
+          (cb (if-not err
+                {:lang :clj :source src}
+                (.error js/console err))))))
+    (cb nil)))
+
+(comment
+  (require-macros '[cljs.env.macros :as env])
+  (require '[cljs.pprint :as pp]
+    '[cljs.env :as env]
+    '[cljs.analyzer :as ana]
+    '[cljs.compiler :as comp]
+    '[cljs.source-map :as sm]
+    '[goog.object :as gobj])
+
+  (cljs/eval st '(defn foo [a b] (+ a b))
+    {:eval cljs/js-eval}
+    (fn [res]
+      (println res)))
+
+  (cljs/compile st "(defprotocol IFoo (foo [this]))"
+    (fn [js-source]
+      (println "Source:")
+      (println js-source)))
+
+  (cljs/eval-str st
+    "(defn foo [a b] (+ a b))
+     (defn bar [c d] (+ c d))"
+    nil
+    {:eval cljs/js-eval}
+    (fn [res]
+      (println res)))
+
+  (cljs/eval-str st "1"
+    nil
+    {:eval cljs/js-eval
+     :context :expr}
+    (fn [res]
+      (println res)))
+
+  (cljs/eval-str st "(def x 1)"
+    nil
+    {:eval cljs/js-eval
+     :context :expr
+     :def-emits-var true}
+    (fn [res]
+      (println res)))
+
+  (cljs/eval st '(ns foo.bar)
+    {:eval cljs/js-eval}
+    (fn [res]
+      (println res)))
+
+  (cljs/compile st "(defn foo\n[a b]\n(+ a b))" 'cljs.foo
+    {:verbose true :source-map true}
+    (fn [js-source]
+      (println "Source:")
+      (println js-source)))
+
+  (cljs/eval-str st
+    "(ns foo.bar (:require [hello-world.core]))\n(hello-world.core/bar 3 4)"
+    'foo.bar
+    {:verbose true
+     :source-map true
+     :eval node-eval
+     :load node-load}
+    (fn [ret]
+      (println ret)))
+
+  (cljs/eval-str st
+    "(ns foo.bar (:require-macros [hello-world.macros :refer [mult]]))\n(mult 4 4)"
+    'foo.bar
+    {:verbose true
+     :source-map true
+     :eval node-eval
+     :load node-load}
+    (fn [{:keys [error] :as res}]
+      (if error
+        (do
+          (println error)
+          (println (.. error -cause -stack)))
+        (println res))))
+
+  (cljs/eval-str st
+    "(ns foo.bar)\n(first [1 2 3])"
+    'foo.bar
+    {:verbose true
+     :source-map true
+     :eval node-eval
+     :load node-load}
+    (fn [{:keys [error] :as res}]
+      (if error
+        (do
+          (println error)
+          (println (.. error -cause -stack)))
+        (println res))))
+
+  (cljs/eval-str st
+    "(ns foo.bar)\n(map inc [1 2 3])"
+    'foo.bar
+    {:verbose true
+     :source-map true
+     :eval node-eval
+     :load node-load}
+    (fn [{:keys [error] :as res}]
+      (if error
+        (do
+          (println error)
+          (println (.. error -cause -stack)))
+        (println res))))
+
+  ;; missing paren, will cause an error
+  (cljs/eval-str st
+    "(ns foo.bar)\n(map inc [1 2 3])"
+    'foo.bar
+    {:verbose true
+     :source-map true
+     :eval node-eval
+     :load node-load}
+    (fn [{:keys [error] :as res}]
+      (if error
+        (do
+          (println error)
+          (println (.. error -cause -stack)))
+        (println res))))
+
+  ;; decode source map
+  ;; 2 seconds under V8 (Node.js)
+  (time
+    (do
+      (sm/decode (.parse js/JSON (:core-source-map-json @st)))
+      nil))
+
+  (cljs/file->ns "cljs/core.cljs")
+
+  )

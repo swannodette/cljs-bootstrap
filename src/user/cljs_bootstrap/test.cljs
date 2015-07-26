@@ -141,4 +141,7 @@
     (do
       (sm/decode (.parse js/JSON (:core-source-map-json @st)))
       nil))
+
+  (cljs/file->ns "cljs/core.cljs")
+
   )
