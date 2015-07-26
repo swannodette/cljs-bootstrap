@@ -1,6 +1,5 @@
 (ns cljs-bootstrap.test
-  (:require [cljs.js :as cljs]
-            [cljs.reader :refer [read-string]]))
+  (:require [cljs.js :as cljs]))
 
 (set! *target* "nodejs")
 (enable-console-print!)
@@ -36,7 +35,9 @@
   (require '[cljs.pprint :as pp]
            '[cljs.env :as env]
            '[cljs.analyzer :as ana]
-           '[cljs.compiler :as comp])
+           '[cljs.compiler :as comp]
+           '[cljs.source-map :as sm]
+           '[goog.object :as gobj])
 
   (cljs/eval st '(defn foo [a b] (+ a b))
     {:eval cljs/js-eval}
@@ -133,4 +134,11 @@
           (println error)
           (println (.. error -cause -stack)))
         (println res))))
+
+  ;; decode source map
+  ;; 2 seconds under V8 (Node.js)
+  (time
+    (do
+      (sm/decode (.parse js/JSON (:core-source-map-json @st)))
+      nil))
   )
