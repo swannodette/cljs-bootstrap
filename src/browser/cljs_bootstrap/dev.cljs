@@ -18,7 +18,7 @@
   (:import [goog.net XhrIo]
            [goog.events EventType]))
 
-(enable-console-print!)
+#_(enable-console-print!)
 
 (defonce conn (repl/connect "http://localhost:9000/repl"))
 
@@ -139,7 +139,7 @@
     'foo.bar
     {:verbose true
      :source-map true
-     :eval node-eval
+     :eval cljs/js-eval
      :load node-load}
     (fn [ret]
       (println ret)))
@@ -149,7 +149,7 @@
     'foo.bar
     {:verbose true
      :source-map true
-     :eval node-eval
+     :eval cljs/js-eval
      :load node-load}
     (fn [{:keys [error] :as res}]
       (if error
@@ -159,11 +159,11 @@
         (println res))))
 
   (cljs/eval-str st
-    "(ns foo.bar)\n(first [1 2 3])"
-    'foo.bar
+    "(ns woz.noz)\n\n(defn noz []\n  (.log js/console \"foo\")\n  (last [1 2 5]))"
+    'woz.noz
     {:verbose true
      :source-map true
-     :eval node-eval
+     :eval cljs/js-eval
      :load node-load}
     (fn [{:keys [error] :as res}]
       (if error
@@ -177,7 +177,7 @@
     'foo.bar
     {:verbose true
      :source-map true
-     :eval node-eval
+     :eval cljs/js-eval
      :load node-load}
     (fn [{:keys [error] :as res}]
       (if error
@@ -186,14 +186,12 @@
           (println (.. error -cause -stack)))
         (println res))))
 
-  ;; missing paren, will cause an error
   (cljs/eval-str st
-    "(ns foo.bar)\n(map inc [1 2 3])"
+    "(ns foo.bar)\n\n(defn baz [] (map ffirst [1 2 3]))\n"
     'foo.bar
     {:verbose true
      :source-map true
-     :eval node-eval
-     :load node-load}
+     :eval cljs/js-eval}
     (fn [{:keys [error] :as res}]
       (if error
         (do
